@@ -18,9 +18,8 @@
                 <p class="mb-2">Starting Salary Cap = {{ formatPrice(team.startingSalaryCap) }}</p>
                 <p class="mb-2">Total Player Salary = {{ formatPrice(getTotalPlayerSalary(team.players)) }}</p>
                 <p class="mb-2">Salary Cap Remaining = <span :class="{'red--text': getSalaryCapRemaining(team) < 0}">{{ formatPrice(getSalaryCapRemaining(team)) }}</span></p>
-                <p class="mb-2">100% Tax = {{ formatPrice(get100Tax(team)) }}</p>
-                <p class="mb-1">200% Tax = {{ formatPrice(get200Tax(team)) }}</p>
-                <p class="grand-total pt-1">GRAND TOTAL = {{ formatPrice(getGrandTotal(team)) }}</p>
+                <p class="mb-2">Max Bid = {{ formatPrice(getMaxBid(team)) }}</p>
+                <p class="mb-1">Positions Remaining = {{ getPositionsRemaining(team) }}</p>
               </v-card>
             </div>
           </v-col>
@@ -121,10 +120,22 @@ export default {
   methods: {
     clearClicked() {
       if (window.confirm('Are you sure you want to clear everything?')) {
-        window.localStorage.clear();
+        window.localStorage.removeItem('Barking Spiders');
+        window.localStorage.removeItem('Blitzkrieg');
+        window.localStorage.removeItem('Finkle is Einhorn!');
+        window.localStorage.removeItem('Endzone Outlaws');
+        window.localStorage.removeItem('Detroit HopHeads');
+        window.localStorage.removeItem('Fighting Amish');
+        window.localStorage.removeItem('The Highwaymen');
+        window.localStorage.removeItem('Dominatorz');
+        window.localStorage.removeItem('Bottle of Jameson');
+        window.localStorage.removeItem('Rubber Duckies');
+        window.localStorage.removeItem('Touch of Class');
+        window.localStorage.removeItem('Hot Goffy');
         this.init();
       }
     },
+
     formatPrice(value) {
       const formatter = new Intl.NumberFormat('en-US', {
         currency: 'USD',
@@ -133,33 +144,31 @@ export default {
       });
       return formatter.format(value);
     },
-    get100Tax(team) {
+
+    getLogo(name) {
+      return require(`./assets/${name}.jpg`);
+    },
+
+    getMaxBid(team) {
       if (this.getSalaryCapRemaining(team) < 0) {
         const taxableAmount = this.getTotalPlayerSalary(team.players) - team.startingSalaryCap;
         return taxableAmount > 100 ? 100 : taxableAmount;
       }
       return 0;
     },
-    get200Tax(team) {
-      if (this.getSalaryCapRemaining(team) < -100) {
-        let taxableAmount = this.getTotalPlayerSalary(team.players) - team.startingSalaryCap;
-        taxableAmount -= 100;
-        return taxableAmount * 2;
-      }
-      return 0;
+
+    getPositionsRemaining(team) {
+      return team.players.filter((player) => !player.name).length;
     },
-    getGrandTotal(team) {
-      return this.getTotalPlayerSalary(team.players) + this.get100Tax(team) + this.get200Tax(team);
-    },
-    getLogo(name) {
-      return require(`./assets/${name}.jpg`);
-    },
+
     getSalaryCapRemaining(team) {
       return team.startingSalaryCap - this.getTotalPlayerSalary(team.players);
     },
+
     getTotalPlayerSalary(players) {
       return players.map((player) => parseInt(player.salary, 10)).reduce((prev, curr) => prev + curr, 0);
     },
+
     init() {
       this.teams = this.teams.map((team) => {
         const localStorage = JSON.parse(window.localStorage.getItem(team.name));
@@ -254,9 +263,11 @@ export default {
       });
     },
   },
+
   mounted() {
     this.init();
   },
+
   name: 'App',
 };
 </script>
@@ -272,10 +283,6 @@ p {
 
 .division-divider {
   border-bottom: 1px solid white;
-}
-
-.grand-total {
-  border-top: 3px solid black;
 }
 
 .team-name {

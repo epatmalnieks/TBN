@@ -39,9 +39,11 @@ export default {
   components: {
     TeamTable,
   },
+
   data() {
     return {
       selectedTeam: '',
+
       teams: [{
         logo: 'spiders',
         name: 'Barking Spiders',
@@ -150,11 +152,7 @@ export default {
     },
 
     getMaxBid(team) {
-      if (this.getSalaryCapRemaining(team) < 0) {
-        const taxableAmount = this.getTotalPlayerSalary(team.players) - team.startingSalaryCap;
-        return taxableAmount > 100 ? 100 : taxableAmount;
-      }
-      return 0;
+      return this.getSalaryCapRemaining(team) - this.getPositionsRemaining(team) + 1;
     },
 
     getPositionsRemaining(team) {
